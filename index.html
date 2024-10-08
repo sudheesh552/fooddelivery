@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Food Delivery</title>
+</head>
+<body>
+    <header>
+        <h1>Food Delivery</h1>
+    </header>
+    <main>
+        <div id="restaurant-list">
+            <h2>Choose a Restaurant</h2>
+            <ul id="restaurants"></ul>
+        </div>
+        <div id="menu" class="hidden">
+            <h2 id="restaurant-name"></h2>
+            <ul id="items"></ul>
+            <button id="order-btn">Order Selected Items</button>
+            <button id="show-selected-btn">Show Selected</button>
+        </div>
+        <div id="selected-items" class="hidden">
+            <h2>Selected Items</h2>
+            <ul id="selected-list"></ul>
+            <button id="confirm-order-btn">Confirm Order</button>
+        </div>
+        <div id="order-confirmation" class="hidden">
+            <h2>Order Confirmation</h2>
+            <p id="order-summary"></p>
+        </div>
+    </main>
+    <script src="app.js" defer></script>
+</body>
+</html>
