@@ -1,103 +1,65 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const restaurants = [
-        {
-            name: "Italian Bistro",
-            items: [
-                { name: "Pasta", price: 12 },
-                { name: "Pizza", price: 15 },
-                { name: "Salad", price: 8 }
-            ]
-        },
-        {
-            name: "Sushi Place",
-            items: [
-                { name: "Sushi", price: 10 },
-                { name: "Sashimi", price: 12 },
-                { name: "Miso Soup", price: 5 }
-            ]
-        },
-        {
-            name: "Burger Joint",
-            items: [
-                { name: "Burger", price: 11 },
-                { name: "Fries", price: 4 },
-                { name: "Shake", price: 5 }
-            ]
-        },
-    ];
+const menuItems = {
+    pizzeria: [
+        { name: "Margherita Pizza", price: 300 },
+        { name: "Pepperoni Pizza", price: 350 },
+        { name: "Veggie Pizza", price: 280 }
+    ],
+    "burger-joint": [
+        { name: "Cheeseburger", price: 250 },
+        { name: "Double Burger", price: 350 },
+        { name: "Veggie Burger", price: 200 }
+    ],
+    italian: [
+        { name: "Pasta Alfredo", price: 320 },
+        { name: "Lasagna", price: 400 },
+        { name: "Tiramisu", price: 220 }
+    ]
+};
 
-    const restaurantList = document.getElementById("restaurants");
-    const menu = document.getElementById("menu");
-    const restaurantName = document.getElementById("restaurant-name");
-    const itemsList = document.getElementById("items");
-    const selectedItemsDiv = document.getElementById("selected-items");
-    const selectedList = document.getElementById("selected-list");
-    const orderConfirmation = document.getElementById("order-confirmation");
-    const orderSummary = document.getElementById("order-summary");
-    const totalAmount = document.createElement("p");
+const urlParams = new URLSearchParams(window.location.search);
+const restaurant = urlParams.get('restaurant');
+const restaurantName = document.getElementById('restaurant-name');
+const menuItemsDiv = document.getElementById('menu-items');
+const totalSection = document.getElementById('total-section');
+const totalAmountSpan = document.getElementById('total-amount');
+const confirmOrderButton = document.getElementById('confirm-order');
 
-    let selectedItems = [];
+let totalAmount = 0;
 
-    // Load restaurants
-    restaurants.forEach((restaurant, index) => {
-        const li = document.createElement("li");
-        li.textContent = restaurant.name;
-        li.addEventListener("click", () => showMenu(index));
-        restaurantList.appendChild(li);
+if (restaurant && menuItems[restaurant]) {
+    restaurantName.textContent = restaurant.charAt(0).toUpperCase() + restaurant.slice(1).replace('-', ' ');
+    menuItems[restaurant].forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'menu-item';
+        itemDiv.innerHTML = `
+            <h3>${item.name} - ₹${item.price}</h3>
+            <input type="number" min="0" value="0" class="item-quantity" data-price="${item.price}">
+        `;
+        menuItemsDiv.appendChild(itemDiv);
     });
+}
 
-    function showMenu(index) {
-        const restaurant = restaurants[index];
-        restaurantName.textContent = restaurant.name;
-        itemsList.innerHTML = "";
-        selectedItems = []; // Clear previous selections
-        totalAmount.innerHTML = ""; // Clear total amount
-
-        restaurant.items.forEach(item => {
-            const li = document.createElement("li");
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.value = item.name;
-            checkbox.addEventListener("change", (e) => toggleSelection(item, checkbox.checked));
-            li.appendChild(checkbox);
-            li.appendChild(document.createTextNode(`${item.name} - $${item.price}`));
-            itemsList.appendChild(li);
-        });
-        menu.classList.remove("hidden");
+menuItemsDiv.addEventListener('input', (event) => {
+    if (event.target.classList.contains('item-quantity')) {
+        calculateTotal();
     }
+});
 
-    function toggleSelection(item, isSelected) {
-        if (isSelected) {
-            selectedItems.push(item);
-        } else {
-            selectedItems = selectedItems.filter(i => i.name !== item.name);
-        }
-        updateTotal();
-    }
+function calculateTotal() {
+    totalAmount = 0;
+    const quantities = document.querySelectorAll('.item-quantity');
 
-    function updateTotal() {
-        const total = selectedItems.reduce((sum, item) => sum + item.price, 0);
-        totalAmount.innerHTML = `Total: $${total.toFixed(2)}`;
-        itemsList.appendChild(totalAmount);
-    }
-
-    document.getElementById("order-btn").addEventListener("click", () => {
-        if (selectedItems.length > 0) {
-            selectedItemsDiv.classList.remove("hidden");
-            selectedList.innerHTML = selectedItems.map(item => `<li>${item.name} - $${item.price}</li>`).join('');
-        }
+    quantities.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        const price = parseInt(input.dataset.price);
+        totalAmount += quantity * price;
     });
 
-    document.getElementById("confirm-order-btn").addEventListener("click", () => {
-        const itemNames = selectedItems.map(item => item.name).join(", ");
-        const total = selectedItems.reduce((sum, item) => sum + item.price, 0);
-        orderSummary.textContent = `You have ordered: ${itemNames}. Total: $${total.toFixed(2)}`;
-        orderConfirmation.classList.remove("hidden");
-        selectedItemsDiv.classList.add("hidden");
-    });
+    totalAmountSpan.textContent = totalAmount;
+    totalSection.style.display = totalAmount > 0 ? 'block' : 'none';
+}
 
-    document.getElementById("show-selected-btn").addEventListener("click", () => {
-        selectedItemsDiv.classList.remove("hidden");
-        selectedList.innerHTML = selectedItems.map(item => `<li>${item.name} - $${item.price}</li>`).join('');
-    });
+confirmOrderButton.addEventListener('click', () => {
+    alert(`Order confirmed! Total amount: ₹${totalAmount}`);
+    // Additional functionality for order processing can be added here
 });
